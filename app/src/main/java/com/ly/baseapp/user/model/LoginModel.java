@@ -39,7 +39,7 @@ public class LoginModel implements LoginContract.Model {
     }
 
     @Override
-    public void login(String username, String passwd,  String token,String time, String refer, DataCallback callback) {
+    public void login(String username, String passwd, String token, String time, String refer, DataCallback callback) {
 
         apiService.getLogin(Api.getCacheControl(), passwd, refer, time, token, username)
                 .compose(SwitchSchedulers.applySchedulers())

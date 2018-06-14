@@ -46,7 +46,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".user.ui.LoginActivity" />
+        <activity
+            android:name=".user.ui.LoginActivity"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <action android:name="app.intent.action.LOGIN" />
+            </intent-filter>
+        </activity>
         <activity android:name=".user.ui.RegisterActivity" />
 
         <activity android:name=".MainActivity">

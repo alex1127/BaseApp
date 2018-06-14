@@ -16,6 +16,8 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.net.UnknownServiceException;
 
+import javax.security.auth.login.LoginException;
+
 import es.dmoral.toasty.Toasty;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
@@ -30,7 +32,7 @@ import retrofit2.HttpException;
  */
 public abstract class BaseObserver<T> implements Observer<HttpResponse<T>> {
     private final String TAG = BaseObserver.class.getSimpleName();
-    public final static String Thread_Main="main";
+    public final static String Thread_Main = "main";
 
     private final int RESPONSE_CODE_OK = 0;       //自定义的业务逻辑，成功返回积极数据
     private final int RESPONSE_FATAL_EOR = -1;    //返回数据失败,严重的错误
@@ -72,14 +74,14 @@ public abstract class BaseObserver<T> implements Observer<HttpResponse<T>> {
 
     @Override
     public final void onSubscribe(Disposable d) {
-        disposable=d;
+        disposable = d;
     }
 
     @Override
     public final void onNext(HttpResponse<T> response) {
         HttpUiTips.dismissDialog(mContext);
 
-        if(!disposable.isDisposed()){
+        if (!disposable.isDisposed()) {
             disposable.dispose();
         }
 
@@ -99,7 +101,7 @@ public abstract class BaseObserver<T> implements Observer<HttpResponse<T>> {
      */
     @Override
     public final void onError(Throwable t) {
-        Log.e("okhttp","Throwable t:"+t.toString());  //打印出异常信息
+        Log.e("okhttp", "Throwable t:" + t.toString());  //打印出异常信息
 
         HttpUiTips.dismissDialog(mContext);
         if (t instanceof HttpException) {
@@ -113,7 +115,7 @@ public abstract class BaseObserver<T> implements Observer<HttpResponse<T>> {
         } else if (t instanceof ConnectException) {
             errorCode = RESPONSE_FATAL_EOR;
             errorMsg = "网络连接异常，请检查网络";
-        }else if (t instanceof UnknownHostException) {
+        } else if (t instanceof UnknownHostException) {
             errorCode = RESPONSE_FATAL_EOR;
             errorMsg = "无法解析主机，请检查网络连接";
         } else if (t instanceof UnknownServiceException) {
@@ -129,7 +131,7 @@ public abstract class BaseObserver<T> implements Observer<HttpResponse<T>> {
             // ... ...
         } else if (t instanceof RuntimeException) { //很多的错误都是extends RuntimeException
             errorCode = RESPONSE_FATAL_EOR;
-            errorMsg = "运行时错误"+t.toString();
+            errorMsg = "运行时错误" + t.toString();
         }
 
         onFailure(errorCode, errorMsg);
@@ -143,7 +145,6 @@ public abstract class BaseObserver<T> implements Observer<HttpResponse<T>> {
     public final void onComplete() {
 //        HttpUiTips.dismissDialog(mContext);
     }
-
 
 
     /**
@@ -163,7 +164,6 @@ public abstract class BaseObserver<T> implements Observer<HttpResponse<T>> {
     }
 
 
-
     /**
      * 对通用问题的统一拦截处理,Demo 项目的特定的做法
      *
@@ -180,12 +180,14 @@ public abstract class BaseObserver<T> implements Observer<HttpResponse<T>> {
                     Intent intent = new Intent();
                     //不要hard Code, 使用灵活的Intent 来做吧
                     intent.setAction("app.intent.action.LOGIN");
-//                    mContext.startActivity(intent);
+
+                    Log.e("SAX", "app.intent.action.LOGIN");
+                    mContext.startActivity(intent);
                 }
                 break;
         }
 
-        if (mContext != null&& Thread.currentThread().getName().toString().equals(Thread_Main)) {
+        if (mContext != null && Thread.currentThread().getName().toString().equals(Thread_Main)) {
             Toasty.error(mContext.getApplicationContext(), message + "   code=" + code, Toast.LENGTH_SHORT).show();
         }
 

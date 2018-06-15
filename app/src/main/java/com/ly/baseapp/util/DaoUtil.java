@@ -59,8 +59,8 @@ public class DaoUtil {
         }
         map.put("refer", Api.REFER);
         map.put("time", currentTime);
-//        map.put("ver", ver);
-//        map.put("an", an);
+        map.put("ver", ver);
+        map.put("an", an);
         String str = Utils.mapDesc(map) + Api.secret_key;
         String token = Utils.encodeByMD5(str);
         return token;

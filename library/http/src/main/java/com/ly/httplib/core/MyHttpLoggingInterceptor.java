@@ -157,6 +157,7 @@ public final class MyHttpLoggingInterceptor implements Interceptor {
         MyHttpLoggingInterceptor.Level level = this.level;
 
         Request request = chain.request();
+//        Log.e(TAG, "intercept: ", );
         if (level == MyHttpLoggingInterceptor.Level.NONE) {
             return chain.proceed(request);
         }

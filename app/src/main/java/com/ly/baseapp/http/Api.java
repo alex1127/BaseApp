@@ -28,7 +28,7 @@ public class Api {
     private static final String CACHE_CONTROL_AGE = "max-age=0";
 
 
-    public static final String secret_key = "TTE*T*)*(#23sSKW*dfd";
+    public static final String secret_key = "EU*T*)*(#23ssdfd";
 
     public static final String REFER = "android";
 

@@ -41,7 +41,7 @@ public class LoginPresenter implements LoginContract.Presenter {
 
     @Override
     public void login(String username, String passwd, String token, String time) {
-        model.login(username, passwd, time, token, "android", new BaseModel.DataCallback<LoginResult>() {
+        model.login(username, passwd,  token,time, "android", new BaseModel.DataCallback<LoginResult>() {
 
             @Override
             public void onSuccess(LoginResult loginResult) {

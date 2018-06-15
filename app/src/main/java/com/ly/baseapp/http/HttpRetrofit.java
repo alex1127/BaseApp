@@ -6,13 +6,17 @@ import android.util.Log;
 
 
 import com.ly.baseapp.util.SPDao;
+import com.ly.baseapp.util.Utils;
 import com.ly.httplib.core.MyHttpLoggingInterceptor;
 import com.ly.httplib.core.SPKey;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
+
 import okhttp3.Authenticator;
+import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -24,12 +28,13 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * HTTP 请求Retrofit 配置
- *
+ * <p>
  * Created by Anylife.zlb@gmail.com on 2017/3/16.
  */
 public class HttpRetrofit {
     private static final String TAG = HttpRetrofit.class.getSimpleName() + "OKHTTP";
     private static final String baseUrl = "http://api.huomao.com";  // WARMING-just for test !
+//    private static final String baseUrl = "http://api.huomao.com";
 
 
     /**
@@ -41,6 +46,7 @@ public class HttpRetrofit {
 
     private static String TOKEN;
 
+
     public static void setToken(String token) {
         TOKEN = token;
     }
@@ -50,7 +56,12 @@ public class HttpRetrofit {
      *
      * @return
      */
+
+    private String ver;
+    private int an;
+
     public static Retrofit getRetrofit(final SPDao spDao, Context mContext) {
+
         if (retrofit == null) {
             //1.处理没有认证  http 401 Not Authorised
             Authenticator mAuthenticator2 = new Authenticator() {
@@ -73,35 +84,54 @@ public class HttpRetrofit {
              * 只有等到登陆之后才有 token，这时候就不进行附着上 token。另外，如果你的请求中已经带有验证 header 了，
              * 比如你手动设置了一个另外的 token，那么也不需要再附着这一个 token.
              */
+
+
             Interceptor mRequestInterceptor = new Interceptor() {
                 @Override
                 public Response intercept(Chain chain) throws IOException {
-                    Request originalRequest = chain.request();
+
+                    Request oldRequest = chain.request();
+                    Log.e("SAX", "originalRequest: " + oldRequest.toString());
                     if (TextUtils.isEmpty(TOKEN)) {
                         TOKEN = spDao.getData(SPKey.KEY_ACCESS_TOKEN, "", String.class);
                     }
 
+                    HttpUrl.Builder newUrlBuilder = oldRequest.url()
+                            .newBuilder()
+                            .scheme(oldRequest.url().scheme())
+                            .host(oldRequest.url().host())
+                            .addQueryParameter("ver", Utils.getVersionName(mContext))
+                            .addQueryParameter("an", String.valueOf(Utils.getVersionCode(mContext)));
                     /**
                      * TOKEN == null，Login/Register noNeed Token
                      * noNeedAuth(originalRequest)    refreshToken api request is after log in before log out,but  refreshToken api no need auth
                      */
-                    if (TextUtils.isEmpty(TOKEN) || alreadyHasAuthorizationHeader(originalRequest) || noNeedAuth(originalRequest)) {
-                        Response originalResponse = chain.proceed(originalRequest);
-                        return originalResponse.newBuilder()
-                                //get http request progress,et download app
+                    if (TextUtils.isEmpty(TOKEN) || alreadyHasAuthorizationHeader(oldRequest) || noNeedAuth(oldRequest)) {
+                        Request newRequest = oldRequest.newBuilder()
+                                .method(oldRequest.method(), oldRequest.body())
+                                .url(newUrlBuilder.build())
                                 .build();
+
+
+                        Response originalResponse = chain.proceed(newRequest);
+
+
+                        return originalResponse;
+//                        return originalResponse.newBuilder().build();
+
                     }
 
-                    Request authorisedRequest = originalRequest.newBuilder()
+
+                    Request authorisedRequest = oldRequest.newBuilder()
+                            .method(oldRequest.method(), oldRequest.body())
+                            .url(newUrlBuilder.build())
                             .header("Authorization", TOKEN)
                             .header("Connection", "Keep-Alive")  //新添加，time-out默认是多少呢？
                             .header("Content-Encoding", "gzip")  //使用GZIP 压缩内容，接收不用设置啥吧
                             .build();
 
                     Response originalResponse = chain.proceed(authorisedRequest);
-
                     //把统一拦截的header 打印出来
-                    new MyHttpLoggingInterceptor().logInterceptorHeaders(authorisedRequest);
 
                     return originalResponse.newBuilder().build();
                 }
@@ -121,6 +151,7 @@ public class HttpRetrofit {
                     .readTimeout(22, TimeUnit.SECONDS)
                     .writeTimeout(22, TimeUnit.SECONDS)
                     .addNetworkInterceptor(mRequestInterceptor)
+
                     .authenticator(mAuthenticator2)
                     .addInterceptor(loggingInterceptor)
                     .build();

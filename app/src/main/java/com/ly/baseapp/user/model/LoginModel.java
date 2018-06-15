@@ -1,6 +1,7 @@
 package com.ly.baseapp.user.model;
 
 
+import android.app.Activity;
 import android.content.Context;
 
 import com.ly.baseapp.bean.LoginResult;
@@ -21,8 +22,15 @@ public class LoginModel implements LoginContract.Model {
     @Inject
     ApiService apiService;
 
-    @Inject
-    Context context;
+    Activity activity;
+
+    public Activity getActivity() {
+        return activity;
+    }
+
+    public void setActivity(Activity activity) {
+        this.activity = activity;
+    }
 
     @Inject
     public LoginModel() {
@@ -38,7 +46,7 @@ public class LoginModel implements LoginContract.Model {
 
         apiService.getLogin(Api.getCacheControl(), passwd, refer, time, token, username)
                 .compose(SwitchSchedulers.applySchedulers())
-                .subscribe(new BaseObserver<LoginResult>(context) {
+                .subscribe(new BaseObserver<LoginResult>(activity) {
                     @Override
                     public void onSuccess(LoginResult loginResult) {
                         if (callback != null) {

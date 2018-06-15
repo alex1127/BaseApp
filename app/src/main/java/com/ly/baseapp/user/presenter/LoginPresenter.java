@@ -1,6 +1,8 @@
 package com.ly.baseapp.user.presenter;
 
 
+import android.app.Activity;
+
 import com.ly.baseapp.base.BaseModel;
 import com.ly.baseapp.bean.LoginParams;
 import com.ly.baseapp.bean.LoginResult;
@@ -30,6 +32,7 @@ public class LoginPresenter implements LoginContract.Presenter {
     @Override
     public void takeView(LoginContract.View view) {
         mLoginView = view;
+        model.setActivity((Activity) view);
 
     }
 

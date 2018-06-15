@@ -8,6 +8,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 
+import com.kingja.loadsir.callback.Callback;
+import com.kingja.loadsir.core.LoadService;
+import com.kingja.loadsir.core.LoadSir;
+
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
@@ -26,7 +30,7 @@ public abstract class BaseActivity extends AppCompatActivity implements HasSuppo
     public Context mContext;
 
 
-//    public LoadService mBaseLoadService; //Http Error，empty,Loading,timeout状态管理器
+    public LoadService mBaseLoadService; //Http Error，empty,Loading,timeout状态管理器
 
     @Inject
     DispatchingAndroidInjector<Fragment> supportFragmentInjector;
@@ -42,8 +46,16 @@ public abstract class BaseActivity extends AppCompatActivity implements HasSuppo
         View rootView = View.inflate(this, getLayoutId(), null);
         ButterKnife.bind(this, rootView);   //ButterKnife 绑定,只要在这一处地方写好就可以了
 
+
         setContentView(rootView);
+        mBaseLoadService = LoadSir.getDefault().register(mContext, new Callback.OnReloadListener() {
+            @Override
+            public void onReload(View v) {
+                onHttpReload(v);
+            }
+        });
         initViews();
+        loadHttp();
     }
 
     @Override
@@ -69,4 +81,8 @@ public abstract class BaseActivity extends AppCompatActivity implements HasSuppo
 
     protected abstract void initViews();
 
+
+    protected  void loadHttp(){
+        mBaseLoadService.showSuccess();
+    }
 }

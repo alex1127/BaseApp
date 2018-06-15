@@ -1,11 +1,14 @@
 package com.ly.baseapp.user.ui;
 
 import android.app.ActivityOptions;
+import android.content.Context;
 import android.content.Intent;
+import android.location.LocationManager;
 import android.os.Build;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.CardView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -109,6 +112,22 @@ public class LoginActivity extends BaseActivity implements LoginContract.View {
     @Override
     public void loginFail(String failMsg) {
 
+    }
+
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loginPresenter.takeView(this);
+
+
+    }
+
+    @Override
+    public void onPause() {
+        loginPresenter.dropView();
+        super.onPause();
     }
 
 
